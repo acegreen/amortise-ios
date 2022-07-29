@@ -11,7 +11,7 @@ import SwiftUI
 
 class HomeViewModel: ObservableObject {
 
-//    @FetchRequest(fetchRequest: ItemCoreDataModel.getAllExpenseData(sortBy: ItemCoreDataModelSort.occuredOn, ascending: false))
+//    @FetchRequest(fetchRequest: ItemCoreDataModel.getAllExpenseData(sortBy: ItemCoreDataModelSort.createdDate, ascending: false))
 //    var items: FetchedResults<ItemCoreDataModel>
 //
 //    init(models: [ItemCoreDataModel]) { self.items = models }

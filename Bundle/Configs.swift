@@ -8,6 +8,8 @@
 import Foundation
 import SwiftUI
 
+// [TODO]: Clean up and move to Constants.swift
+
 // App Globals
 let APP_NAME = "amortise-ios"
 let APP_LINK = "https://github.com/acegreen/amortise-ios"

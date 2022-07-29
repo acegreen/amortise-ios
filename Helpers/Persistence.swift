@@ -15,7 +15,7 @@ struct PersistenceController {
         let viewContext = result.container.viewContext
         for _ in 0..<10 {
             let newItem = ItemCoreDataModel(context: viewContext)
-            newItem.createdAt = Date()
+            newItem.createdDate = Date()
         }
         do {
             try viewContext.save()

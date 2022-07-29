@@ -40,7 +40,7 @@ struct DropdownButton: View {
             )
             VStack {
                 if self.shouldShowDropdown {
-                    CategoriesView(options: Category.allCases, onSelect: onSelect)
+                    CategoriesView(options: CategoryType.allCases, onSelect: onSelect)
                 }
             }
         }.animation(.spring())

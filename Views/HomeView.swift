@@ -13,14 +13,14 @@ struct HomeView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @Environment(\.managedObjectContext) private var viewContext
 
-    @FetchRequest(fetchRequest: ItemCoreDataModel.getAllExpenseData(sortBy: ItemCoreDataModelSort.occuredOn, ascending: false))
+    @FetchRequest(fetchRequest: ItemCoreDataModel.getAllExpenseData(sortBy: ItemCoreDataModelSort.createdDate, ascending: false))
     var items: FetchedResults<ItemCoreDataModel>
     var filter: ItemCoreDataModelFilterTime?
 
     @StateObject var viewModel = HomeViewModel()
 
 //    init(filter: ItemCoreDataModelFilterTime? = nil) {
-//        let sortDescriptor = NSSortDescriptor(key: "occuredOn", ascending: false)
+//        let sortDescriptor = NSSortDescriptor(key: "createdDate", ascending: false)
 //        self.filter = filter
 //        if filter == .all {
 //            fetchRequest = FetchRequest<ItemCoreDataModel>(entity: ItemCoreDataModel.entity(), sortDescriptors: [sortDescriptor])
@@ -30,7 +30,7 @@ struct HomeView: View {
 //            if filter == .week { startDate = Date().getLast7Day()! as NSDate }
 //            else if filter == .month { startDate = Date().getLast30Day()! as NSDate }
 //            else { startDate = Date().getLast6Month()! as NSDate }
-//            let predicate = NSPredicate(format: "occuredOn >= %@ AND occuredOn <= %@", startDate, endDate)
+//            let predicate = NSPredicate(format: "createdDate >= %@ AND createdDate <= %@", startDate, endDate)
 //            fetchRequest = FetchRequest<ItemCoreDataModel>(entity: ItemCoreDataModel.entity(), sortDescriptors: [sortDescriptor], predicate: predicate)
 //        }
 //    }
@@ -42,24 +42,26 @@ struct HomeView: View {
                 if items.isEmpty {
                     //                LottieView(animType: .empty_face).frame(width: 300, height: 300)
                     VStack {
-                        TextView(text: "No Transaction Yet!", type: .h6).foregroundColor(Color.text_primary_color)
-                        TextView(text: "Add a transaction and it will show up here", type: .body_1).foregroundColor(Color.text_primary_color).padding(.top, 2)
+                        TextView(text: "No Items Yet!", type: .h6).foregroundColor(Color.text_primary_color)
+                        TextView(text: "Add a item and it will show up here", type: .body_1).foregroundColor(Color.text_primary_color).padding(.top, 2)
                     }.padding(.horizontal)
                 } else {
                     List {
                         ForEach(self.items) { model in
-                            NavigationLink(destination: DetailsView(model: model), label: {
+                            ZStack {
                                 HomeListModelView(image: model.categoryType.id,
-                                                  name: model.title ?? "",
-                                                  age: model.title ?? "",
-                                                  about: model.title ?? "",
-                                                  location: model.title ?? "",
-                                                  gender: model.title ?? "").padding(.bottom, 4)
-                            })
+                                                  title: model.title ?? "",
+                                                  amount: String(model.principleAmount),
+                                                  createdOn: itemFormatter.string(from: model.purchaseDate ?? Date()),
+                                                  isOpen: true).padding(.bottom, 4)
+                                NavigationLink(destination: DetailsView(model: model), label: {
+                                    EmptyView()
+                                }).frame(width: 0).opacity(0.0)
+                            }
                         }
                         //                    .onDelete(perform: deleteItems)
                     }
-                    .listStyle(PlainListStyle())
+                    .listStyle(InsetGroupedListStyle())
                 }
             }
             .toolbar {
@@ -74,22 +76,6 @@ struct HomeView: View {
         }
         .navigationViewStyle(StackNavigationViewStyle())
     }
-
-//    private func addItem() {
-//        withAnimation {
-//            let newItem = Item(context: viewContext)
-//            newItem.timestamp = Date()
-//
-//            do {
-//                try viewContext.save()
-//            } catch {
-//                // Replace this implementation with code to handle the error appropriately.
-//                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-//                let nsError = error as NSError
-//                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-//            }
-//        }
-//    }
 
 //    private func deleteItems(offsets: IndexSet) {
 //        withAnimation {
@@ -109,43 +95,49 @@ struct HomeView: View {
 
 struct HomeListModelView: View {
 
-    var image: String, name: String, age: String, about: String, location: String, gender: String
+    var image: String, title: String, amount: String, createdOn: String, isOpen: Bool
 
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
             Image(image)
-                .resizable().scaledToFill()
-                .frame(width: 100, height: 100).cornerRadius(16)
+                .resizable()
+                .frame(width: 50, height: 50)
+                .cornerRadius(16)
             VStack(alignment: .leading, spacing: 12) {
-                Text(name).lineLimit(1).modifier(SailecFontModifier(.medium, size: 20)).foregroundColor(Color.text_primary_color)
-                Text("\(age) yrs | \(about)").lineLimit(1).modifier(SailecFontModifier(.regular, size: 14)).foregroundColor(Color.text_primary_color)
-                HStack(alignment: .center, spacing: 2) {
-                    Image(IMAGE_LOC_ICON).resizable().frame(width: 20, height: 20)
-                    Text("\(location) away").modifier(SailecFontModifier(.regular, size: 14))
-                        .foregroundColor(Color.text_primary_color).padding(.top, 2)
-                }
+                Text(title).lineLimit(1)
+                    .modifier(SailecFontModifier(.medium, size: 20))
+                    .foregroundColor(Color.text_primary_color)
+                Text("\(createdOn)")
+                    .modifier(SailecFontModifier(.regular, size: 14))
+                    .foregroundColor(Color.text_primary_color)
             }
             Spacer()
             VStack(alignment: .trailing) {
-                GenderView(isMale: gender == "male")
-                Spacer()
-                Text("12 min ago").modifier(SailecFontModifier(.regular, size: 12))
-                    .foregroundColor(Color.text_primary_color)
+                StatusView(isOpen: isOpen)
+                HStack(alignment: .center, spacing: 5) {
+                    Image(systemName: "clock.badge.checkmark.fill")
+                        .resizable()
+                        .frame(width: 20, height: 20)
+                    Text("\(amount) left")
+                        .modifier(SailecFontModifier(.regular, size: 20))
+                        .foregroundColor(Color.text_primary_color)
+                        .padding(.top, 2)
+                }
             }.padding(.vertical, 4)
         }
-        .padding(16)
+        .padding(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
         .background(Color.secondary_color)
         .cornerRadius(16)
     }
 }
 
-struct GenderView: View {
-    var isMale: Bool
+struct StatusView: View {
+    var isOpen: Bool
     var body: some View {
-        Text(isMale ? "Male" : "Female").modifier(SailecFontModifier(.regular, size: 12))
-            .foregroundColor(isMale ? Color.blue_color : Color.red_color)
+        Text(isOpen ? "OPEN" : "CLOSED").modifier(SailecFontModifier(.regular, size: 12))
+            .foregroundColor(isOpen ? Color.blue_color : Color.red_color)
             .padding(.horizontal, 18).padding(.vertical, 8)
-            .background(isMale ? Color.blue_color_trans : Color.red_color_trans)
+            .background(isOpen ? Color.blue_color_trans : Color.red_color_trans)
             .cornerRadius(12)
     }
 }

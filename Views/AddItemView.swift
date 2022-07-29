@@ -31,9 +31,9 @@ struct AddItemView: View {
                         }
                     }.alert(isPresented: $confirmDelete,
                             content: {
-                                Alert(title: Text(APP_NAME), message: Text("Are you sure you want to delete this transaction?"),
+                                Alert(title: Text(APP_NAME), message: Text("Are you sure you want to delete this item?"),
                                     primaryButton: .destructive(Text("Delete")) {
-                                        viewModel.deleteTransaction(managedObjectContext: self.managedObjectContext)
+                                        viewModel.deleteItem(managedObjectContext: self.managedObjectContext)
                                     }, secondaryButton: Alert.Button.cancel(Text("Cancel"), action: { confirmDelete = false })
                                 )
                             })
@@ -49,7 +49,7 @@ struct AddItemView: View {
                                 .background(Color.secondary_color)
                                 .cornerRadius(4)
                             
-                            TextField("Amount", text: $viewModel.amount)
+                            TextField("Amount", text: $viewModel.principleAmount)
                                 .modifier(SailecFontModifier(.regular, size: 16))
                                 .accentColor(Color.text_primary_color)
                                 .frame(height: 50).padding(.leading, 16)
@@ -57,18 +57,18 @@ struct AddItemView: View {
                                 .cornerRadius(4).keyboardType(.decimalPad)
                             
                             DropdownButton(shouldShowDropdown: $viewModel.showTagDrop, displayText: $viewModel.buttonTitle,
-                                           options: Category.allCases, mainColor: Color.text_primary_color,
+                                           options: CategoryType.allCases, mainColor: Color.text_primary_color,
                                            backgroundColor: Color.secondary_color, cornerRadius: 4, buttonHeight: 50) { key in
-                                let selectedObj = Category.allCases.filter({ $0.description == key }).first
+                                let selectedObj = CategoryType.allCases.filter({ $0.description == key }).first
                                 if let object = selectedObj {
                                     viewModel.buttonTitle = object.description
-                                    viewModel.selectedCategory = Category(rawValue: object.rawValue) ?? Category.allCases[0]
+                                    viewModel.selectedCategory = CategoryType(rawValue: object.rawValue) ?? CategoryType.allCases[0]
                                 }
                                 viewModel.showTagDrop = false
                             }
                             
                             HStack {
-                                DatePicker("PickerView", selection: $viewModel.occuredOn,
+                                DatePicker("PickerView", selection: $viewModel.purchaseDate,
                                            displayedComponents: [.date, .hourAndMinute]).labelsHidden().padding(.leading, 16)
                                 Spacer()
                             }
@@ -127,7 +127,7 @@ struct AddItemView: View {
                 VStack {
                     Spacer()
                     VStack {
-                        Button(action: { viewModel.saveTransaction(managedObjectContext: managedObjectContext) }, label: {
+                        Button(action: { viewModel.saveItem(managedObjectContext: managedObjectContext) }, label: {
                             HStack {
                                 Spacer()
                                 TextView(text: viewModel.actionButtonText, type: .button).foregroundColor(.white)

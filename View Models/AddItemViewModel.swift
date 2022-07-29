@@ -13,16 +13,16 @@ class AddItemViewModel: ObservableObject {
     var coreDataObject: ItemCoreDataModel?
     
     @Published var title = ""
-    @Published var amount = ""
-    @Published var occuredOn = Date()
+    @Published var principleAmount = ""
+    @Published var purchaseDate = Date()
     @Published var note = ""
     @Published var showTypeDrop = false
     @Published var showTagDrop = false
     
-    @Published var selectedCategory: Category = .specialOffer
+    @Published var selectedCategory: CategoryType = .entertainment
     @Published var buttonTitle: String = ""
     
-    @Published var imageUpdated = false // When transaction edit, check if attachment is updated?
+    @Published var imageUpdated = false // When item edit, check if attachment is updated?
     @Published var imageAttached: UIImage? = nil
     
     @Published var alertMsg = String()
@@ -34,13 +34,13 @@ class AddItemViewModel: ObservableObject {
         self.coreDataObject = coreDataObject
         self.title = coreDataObject?.title ?? ""
         if let coreDataObject = coreDataObject {
-            self.amount = String(coreDataObject.amount)
+            self.principleAmount = String(coreDataObject.principleAmount)
         } else {
-            self.amount = ""
+            self.principleAmount = ""
         }
-        self.occuredOn = coreDataObject?.occuredOn ?? Date()
+        self.purchaseDate = coreDataObject?.purchaseDate ?? Date()
         self.note = coreDataObject?.note ?? ""
-        if let category = Category(rawValue: coreDataObject?.category ?? Category.allCases[0].rawValue) {
+        if let category = CategoryType(rawValue: coreDataObject?.category ?? CategoryType.allCases[0].rawValue) {
             self.selectedCategory = category
             self.buttonTitle = category.description
         }
@@ -62,29 +62,29 @@ class AddItemViewModel: ObservableObject {
     
     func removeImage() { imageAttached = nil }
     
-    func saveTransaction(managedObjectContext: NSManagedObjectContext) {
+    func saveItem(managedObjectContext: NSManagedObjectContext) {
         
         let itemCoreDataModel: ItemCoreDataModel
         let titleStr = title.trimmingCharacters(in: .whitespacesAndNewlines)
-        let amountStr = amount.trimmingCharacters(in: .whitespacesAndNewlines)
+        let principleAmountString = principleAmount.trimmingCharacters(in: .whitespacesAndNewlines)
         
         if titleStr.isEmpty || titleStr == "" {
             alertMsg = "Enter Title"; showAlert = true
             return
         }
-        if amountStr.isEmpty || amountStr == "" {
+        if principleAmountString.isEmpty || principleAmountString == "" {
             alertMsg = "Enter Amount"; showAlert = true
             return
         }
-        guard let amount = Double(amountStr) else {
+        guard let principleAmount = Double(principleAmountString) else {
             alertMsg = "Enter valid number"; showAlert = true
             return
         }
-        guard amount >= 0 else {
+        guard principleAmount >= 0 else {
             alertMsg = "Amount can't be negative"; showAlert = true
             return
         }
-        guard amount <= 1000000000 else {
+        guard principleAmount <= 1000000000 else {
             alertMsg = "Enter a smaller amount"; showAlert = true
             return
         }
@@ -109,24 +109,24 @@ class AddItemViewModel: ObservableObject {
             
         } else {
             itemCoreDataModel = ItemCoreDataModel(context: managedObjectContext)
-            itemCoreDataModel.createdAt = Date()
+            itemCoreDataModel.createdDate = Date()
             if let image = imageAttached {
                 itemCoreDataModel.imageAttached = image.jpegData(compressionQuality: 1.0)
             }
         }
-        itemCoreDataModel.updatedAt = Date()
+        itemCoreDataModel.updatedDate = Date()
+        itemCoreDataModel.purchaseDate = self.purchaseDate
         itemCoreDataModel.title = titleStr
         itemCoreDataModel.category = selectedCategory.rawValue
-        itemCoreDataModel.occuredOn = occuredOn
         itemCoreDataModel.note = note
-        itemCoreDataModel.amount = amount
+        itemCoreDataModel.principleAmount = principleAmount
         do {
             try managedObjectContext.save()
             closePresenter = true
         } catch { alertMsg = "\(error)"; showAlert = true }
     }
     
-    func deleteTransaction(managedObjectContext: NSManagedObjectContext) {
+    func deleteItem(managedObjectContext: NSManagedObjectContext) {
         guard let coreDataObject = coreDataObject else { return }
         managedObjectContext.delete(coreDataObject)
         do {

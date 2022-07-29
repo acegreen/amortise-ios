@@ -8,17 +8,16 @@
 import SwiftUI
 
 extension Color {
-    
+
+    // [TODO]: Clean up and move to Constants.swift
     static let main_color = Color("main_color")
     static let primary_color = Color("primary")
     static let secondary_color = Color("secondary")
     static let text_primary_color = Color("text_primary_color")
-    static let placeholder_color = Color(UIColor(red: 189/255, green: 189/255, blue: 189/255, alpha: 1.0))
-    
+
     static let red_color = Color(UIColor(red: 235/255, green: 87/255, blue: 87/255, alpha: 1.0))
-    static let blue_color = Color(UIColor(red: 0/255, green: 106/255, blue: 246/255, alpha: 1.0))
-    
     static let red_color_trans = Color(UIColor(red: 235/255, green: 87/255, blue: 87/255, alpha: 0.1))
+    static let blue_color = Color(UIColor(red: 0/255, green: 106/255, blue: 246/255, alpha: 1.0))
     static let blue_color_trans = Color(UIColor(red: 0/255, green: 106/255, blue: 246/255, alpha: 0.1))
     
     init(hex: String, alpha: Double = 1) {

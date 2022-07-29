@@ -40,7 +40,7 @@ struct DetailsView: View {
                                 Text(viewModel.model.titleUnwrapped).modifier(SailecFontModifier(.bold, size: 24)).lineLimit(1)
                                     .foregroundColor(Color.text_primary_color)
                                 Spacer()
-                                GenderView(isMale: viewModel.model.titleUnwrapped == "male")
+                                StatusView(isOpen: true)
                             }.padding(.vertical, 8)
 
                             HStack(alignment: .center) {

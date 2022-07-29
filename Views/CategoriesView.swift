@@ -9,7 +9,7 @@ import SwiftUI
 
 struct CategoriesView: View {
 
-    var options: [Category]
+    var options: [CategoryType]
     var onSelect: ((_ key: String) -> Void)?
     
     var body: some View {
@@ -27,6 +27,6 @@ struct CategoriesView: View {
 
 struct CategoriesView_Previews: PreviewProvider {
     static var previews: some View {
-        CategoriesView(options: Category.allCases)
+        CategoriesView(options: CategoryType.allCases)
     }
 }
