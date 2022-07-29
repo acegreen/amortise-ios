@@ -10,17 +10,17 @@ import CoreData
 
 class AddItemViewModel: ObservableObject {
     
-    var expenseObj: ItemCoreDataModel?
+    var coreDataObject: ItemCoreDataModel?
     
     @Published var title = ""
     @Published var amount = ""
     @Published var occuredOn = Date()
     @Published var note = ""
-    @Published var tagTitle = getTransTagTitle(transTag: CATEGORY_TYPE_TRANSPORT)
     @Published var showTypeDrop = false
     @Published var showTagDrop = false
     
-    @Published var selectedTag = CATEGORY_TYPE_TRANSPORT
+    @Published var selectedCategory: Category = .specialOffer
+    @Published var buttonTitle: String = ""
     
     @Published var imageUpdated = false // When transaction edit, check if attachment is updated?
     @Published var imageAttached: UIImage? = nil
@@ -29,20 +29,22 @@ class AddItemViewModel: ObservableObject {
     @Published var showAlert = false
     @Published var closePresenter = false
     
-    init(expenseObj: ItemCoreDataModel? = nil) {
+    init(coreDataObject: ItemCoreDataModel? = nil) {
         
-        self.expenseObj = expenseObj
-        self.title = expenseObj?.title ?? ""
-        if let expenseObj = expenseObj {
-            self.amount = String(expenseObj.amount)
+        self.coreDataObject = coreDataObject
+        self.title = coreDataObject?.title ?? ""
+        if let coreDataObject = coreDataObject {
+            self.amount = String(coreDataObject.amount)
         } else {
             self.amount = ""
         }
-        self.occuredOn = expenseObj?.occuredOn ?? Date()
-        self.note = expenseObj?.note ?? ""
-        self.tagTitle = getTransTagTitle(transTag: expenseObj?.tag ?? CATEGORY_TYPE_TRANSPORT)
-        self.selectedTag = expenseObj?.tag ?? CATEGORY_TYPE_TRANSPORT
-        if let data = expenseObj?.imageAttached {
+        self.occuredOn = coreDataObject?.occuredOn ?? Date()
+        self.note = coreDataObject?.note ?? ""
+        if let category = Category(rawValue: coreDataObject?.category ?? Category.allCases[0].rawValue) {
+            self.selectedCategory = category
+            self.buttonTitle = category.description
+        }
+        if let data = coreDataObject?.imageAttached {
             self.imageAttached = UIImage(data: data)
         }
         
@@ -52,8 +54,8 @@ class AddItemViewModel: ObservableObject {
         }
     }
     
-    func getButtText() -> String {
-        return "\(expenseObj == nil ? "ADD" : "EDIT") TRANSACTION"
+    var actionButtonText: String {
+        return "\(coreDataObject == nil ? "ADD" : "EDIT") ITEM"
     }
     
     func attachImage() { AttachmentHandler.shared.showAttachmentActionSheet() }
@@ -62,7 +64,7 @@ class AddItemViewModel: ObservableObject {
     
     func saveTransaction(managedObjectContext: NSManagedObjectContext) {
         
-        let expense: ItemCoreDataModel
+        let itemCoreDataModel: ItemCoreDataModel
         let titleStr = title.trimmingCharacters(in: .whitespacesAndNewlines)
         let amountStr = amount.trimmingCharacters(in: .whitespacesAndNewlines)
         
@@ -87,37 +89,37 @@ class AddItemViewModel: ObservableObject {
             return
         }
         
-        if expenseObj != nil {
+        if coreDataObject != nil {
             
-            expense = expenseObj!
+            itemCoreDataModel = coreDataObject!
             
             if let image = imageAttached {
                 if imageUpdated {
-                    if let _ = expense.imageAttached {
+                    if let _ = itemCoreDataModel.imageAttached {
                         // Delete Previous Image from CoreData
                     }
-                    expense.imageAttached = image.jpegData(compressionQuality: 1.0)
+                    itemCoreDataModel.imageAttached = image.jpegData(compressionQuality: 1.0)
                 }
             } else {
-                if let _ = expense.imageAttached {
+                if let _ = itemCoreDataModel.imageAttached {
                     // Delete Previous Image from CoreData
                 }
-                expense.imageAttached = nil
+                itemCoreDataModel.imageAttached = nil
             }
             
         } else {
-            expense = ItemCoreDataModel(context: managedObjectContext)
-            expense.createdAt = Date()
+            itemCoreDataModel = ItemCoreDataModel(context: managedObjectContext)
+            itemCoreDataModel.createdAt = Date()
             if let image = imageAttached {
-                expense.imageAttached = image.jpegData(compressionQuality: 1.0)
+                itemCoreDataModel.imageAttached = image.jpegData(compressionQuality: 1.0)
             }
         }
-        expense.updatedAt = Date()
-        expense.title = titleStr
-        expense.tag = selectedTag
-        expense.occuredOn = occuredOn
-        expense.note = note
-        expense.amount = amount
+        itemCoreDataModel.updatedAt = Date()
+        itemCoreDataModel.title = titleStr
+        itemCoreDataModel.category = selectedCategory.rawValue
+        itemCoreDataModel.occuredOn = occuredOn
+        itemCoreDataModel.note = note
+        itemCoreDataModel.amount = amount
         do {
             try managedObjectContext.save()
             closePresenter = true
@@ -125,8 +127,8 @@ class AddItemViewModel: ObservableObject {
     }
     
     func deleteTransaction(managedObjectContext: NSManagedObjectContext) {
-        guard let expenseObj = expenseObj else { return }
-        managedObjectContext.delete(expenseObj)
+        guard let coreDataObject = coreDataObject else { return }
+        managedObjectContext.delete(coreDataObject)
         do {
             try managedObjectContext.save(); closePresenter = true
         } catch { alertMsg = "\(error)"; showAlert = true }

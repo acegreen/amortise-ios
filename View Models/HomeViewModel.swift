@@ -11,11 +11,12 @@ import SwiftUI
 
 class HomeViewModel: ObservableObject {
 
-    @Published var itemsList = [ItemModel]()
+//    @FetchRequest(fetchRequest: ItemCoreDataModel.getAllExpenseData(sortBy: ItemCoreDataModelSort.occuredOn, ascending: false))
+//    var items: FetchedResults<ItemCoreDataModel>
+//
+//    init(models: [ItemCoreDataModel]) { self.items = models }
 
-    init() { fetchItemsList() }
-
-    func fetchItemsList() { itemsList = ItemData.items }
+//    func fetchItemsList() { itemsList = ItemData.items }
 
 //    @FetchRequest(
 //        sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],

@@ -16,7 +16,7 @@ struct CategoryItemView: View {
     var body: some View {
         Button(action: {
             if let onSelect = self.onSelect {
-                onSelect(self.image)
+                onSelect(self.name)
             }
         }) {
             VStack {

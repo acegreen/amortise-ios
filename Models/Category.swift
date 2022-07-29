@@ -9,22 +9,22 @@ import Foundation
 
 enum Category: String, DropdownOption {
 
-    case specialOffer = "Special Offer"
-    case confectionery = "Confectionery"
-    case crisps = "Crisps"
-    case softDrinks = "Soft Drinks"
-    case alcohol = "Alcohol"
-    case fruitAndVeggies = "Fruit & Veggies"
-    case meat = "Meat"
-    case readyMeals = "Real Meals"
-    case iceCream = "Ice Cream"
-    case dairy = "Dairy"
-    case food = "Food"
-    case bakery = "Bakery"
-    case frozenFood = "Frozen Food"
-    case health = "Health"
-    case personal = "Personal"
-    case home = "Home"
+    case specialOffer
+    case confectionery
+    case crisps
+    case softDrinks
+    case alcohol
+    case fruitAndVeggies
+    case meat
+    case readyMeals
+    case iceCream
+    case dairy
+    case food
+    case bakery
+    case frozenFood
+    case health
+    case personal
+    case household
 
     var id: String {
         switch self {
@@ -58,8 +58,45 @@ enum Category: String, DropdownOption {
             return "category-14"
         case .personal:
             return "category-15"
-        case .home:
+        case .household:
             return "category-16"
+        }
+    }
+
+    var description: String {
+        switch self {
+        case .specialOffer:
+            return "Special Offer"
+        case .confectionery:
+            return "Confectionery"
+        case .crisps:
+            return "Crisps"
+        case .softDrinks:
+            return "Soft Drinks"
+        case .alcohol:
+            return "Alcohol"
+        case .fruitAndVeggies:
+            return "Fruit & Veggies"
+        case .meat:
+            return "Meat"
+        case .readyMeals:
+            return "Ready Meals"
+        case .iceCream:
+            return "Ice Cream"
+        case .dairy:
+            return "Dairy"
+        case .food:
+            return "Food"
+        case .bakery:
+            return "Bakery"
+        case .frozenFood:
+            return "Frozen Food"
+        case .health:
+            return "Health"
+        case .personal:
+            return "Personal"
+        case .household:
+            return "Household"
         }
     }
 }

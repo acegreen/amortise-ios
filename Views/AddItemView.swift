@@ -25,7 +25,7 @@ struct AddItemView: View {
                 VStack {
                     
                     Group {
-                        if viewModel.expenseObj == nil {
+                        if viewModel.coreDataObject == nil {
                             ToolbarModelView(title: "Add Item") { self.presentationMode.wrappedValue.dismiss() }
                         } else {
                             ToolbarModelView(title: "Edit Item", button1Icon: IMAGE_DELETE_ICON) { self.presentationMode.wrappedValue.dismiss() }
@@ -58,13 +58,13 @@ struct AddItemView: View {
                                 .background(Color.secondary_color)
                                 .cornerRadius(4).keyboardType(.decimalPad)
                             
-                            DropdownButton(shouldShowDropdown: $viewModel.showTagDrop, displayText: $viewModel.tagTitle,
+                            DropdownButton(shouldShowDropdown: $viewModel.showTagDrop, displayText: $viewModel.buttonTitle,
                                            options: Category.allCases, mainColor: Color.text_primary_color,
                                            backgroundColor: Color.secondary_color, cornerRadius: 4, buttonHeight: 50) { key in
-                                let selectedObj = Category.allCases.filter({ $0.id == key }).first
+                                let selectedObj = Category.allCases.filter({ $0.description == key }).first
                                 if let object = selectedObj {
-                                    viewModel.tagTitle = object.id
-                                    viewModel.selectedTag = key
+                                    viewModel.buttonTitle = object.description
+                                    viewModel.selectedCategory = Category(rawValue: object.rawValue) ?? Category.allCases[0]
                                 }
                                 viewModel.showTagDrop = false
                             }
@@ -132,7 +132,7 @@ struct AddItemView: View {
                         Button(action: { viewModel.saveTransaction(managedObjectContext: managedObjectContext) }, label: {
                             HStack {
                                 Spacer()
-                                TextView(text: viewModel.getButtText(), type: .button).foregroundColor(.white)
+                                TextView(text: viewModel.actionButtonText, type: .button).foregroundColor(.white)
                                 Spacer()
                             }
                         })

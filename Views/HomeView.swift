@@ -9,36 +9,68 @@ import SwiftUI
 import CoreData
 
 struct HomeView: View {
+    
+    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @Environment(\.managedObjectContext) private var viewContext
 
+    var fetchRequest: FetchRequest<ItemCoreDataModel>
+    @FetchRequest(fetchRequest: ItemCoreDataModel.getAllExpenseData(sortBy: ItemCoreDataModelSort.occuredOn, ascending: false))
+    var expense: FetchedResults<ItemCoreDataModel>
+    var filter: ItemCoreDataModelFilterTime?
+
     @StateObject var viewModel = HomeViewModel()
+
+    init(filter: ItemCoreDataModelFilterTime? = nil) {
+        let sortDescriptor = NSSortDescriptor(key: "occuredOn", ascending: false)
+        self.filter = filter
+        if filter == .all {
+            fetchRequest = FetchRequest<ItemCoreDataModel>(entity: ItemCoreDataModel.entity(), sortDescriptors: [sortDescriptor])
+        } else {
+            var startDate: NSDate!
+            let endDate: NSDate = NSDate()
+            if filter == .week { startDate = Date().getLast7Day()! as NSDate }
+            else if filter == .month { startDate = Date().getLast30Day()! as NSDate }
+            else { startDate = Date().getLast6Month()! as NSDate }
+            let predicate = NSPredicate(format: "occuredOn >= %@ AND occuredOn <= %@", startDate, endDate)
+            fetchRequest = FetchRequest<ItemCoreDataModel>(entity: ItemCoreDataModel.entity(), sortDescriptors: [sortDescriptor], predicate: predicate)
+        }
+    }
 
     var body: some View {
         NavigationView {
             ZStack {
                 Color.primary_color.edgesIgnoringSafeArea(.all)
-                List {
-                    ForEach(viewModel.itemsList) { model in
-                        NavigationLink(destination: DetailsView(model: model), label: {
-                            HomeListModelView(image: model.image, name: model.name, age: model.age,
-                                              about: model.about, location: model.location, gender: model.gender).padding(.bottom, 4)
-                        })
-                    }
-//                    .onDelete(perform: deleteItems)
-                }
-                .toolbar {
-//                    ToolbarItem(placement: .navigationBarTrailing) {
-//                        EditButton()
-//                    }
-                    ToolbarItem {
-                        NavigationLink(
-                            destination: AddItemView(viewModel: AddItemViewModel()),
-                            label: {
-                                Label("Add Item", systemImage: "plus")
+                if fetchRequest.wrappedValue.isEmpty {
+                    //                LottieView(animType: .empty_face).frame(width: 300, height: 300)
+                    VStack {
+                        TextView(text: "No Transaction Yet!", type: .h6).foregroundColor(Color.text_primary_color)
+                        TextView(text: "Add a transaction and it will show up here", type: .body_1).foregroundColor(Color.text_primary_color).padding(.top, 2)
+                    }.padding(.horizontal)
+                } else {
+                    List {
+                        ForEach(self.fetchRequest.wrappedValue) { model in
+                            NavigationLink(destination: DetailsView(model: model), label: {
+                                HomeListModelView(image: model.categoryType.id,
+                                                  name: model.title ?? "",
+                                                  age: model.title ?? "",
+                                                  about: model.title ?? "",
+                                                  location: model.title ?? "",
+                                                  gender: model.title ?? "").padding(.bottom, 4)
                             })
+                        }
+                        //                    .onDelete(perform: deleteItems)
                     }
+                    .listStyle(PlainListStyle())
                 }
-                .listStyle(PlainListStyle())
+            }
+            .toolbar {
+                ToolbarItem {
+                    NavigationLink(
+                        destination: AddItemView(viewModel: AddItemViewModel()),
+                        label: {
+                            Label("Add Item", systemImage: "plus")
+                        })
+                }
             }
         }
         .navigationViewStyle(StackNavigationViewStyle())
@@ -78,7 +110,7 @@ struct HomeView: View {
 
 struct HomeListModelView: View {
 
-    var image: String, name: String, age: Int, about: String, location: String, gender: String
+    var image: String, name: String, age: String, about: String, location: String, gender: String
 
     var body: some View {
         HStack(spacing: 12) {

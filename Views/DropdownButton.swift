@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-protocol DropdownOption: Identifiable, CaseIterable { }
+protocol DropdownOption: CustomStringConvertible, Identifiable, CaseIterable { }
 
 struct DropdownButton: View {
     

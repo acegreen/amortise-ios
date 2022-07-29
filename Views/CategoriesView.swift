@@ -16,7 +16,7 @@ struct CategoriesView: View {
         LazyVGrid(columns: GRIDP_LAYOUT, spacing: 15,  content: {
             ForEach(self.options) { item in
                 CategoryItemView(image: item.id,
-                                 name: item.rawValue,
+                                 name: item.description,
                                  onSelect: onSelect)
             }
         })

@@ -8,15 +8,16 @@
 import SwiftUI
 
 struct DetailsView: View {
-    
+
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
-    
+    @Environment(\.managedObjectContext) private var viewContext
+
     @ObservedObject var viewModel: DetailsViewModel
-    
-    init(model: ItemModel) {
+
+    init(model: ItemCoreDataModel) {
         viewModel = DetailsViewModel(model: model)
     }
-    
+
     var body: some View {
         NavigationView {
             ZStack {
@@ -24,7 +25,7 @@ struct DetailsView: View {
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack {
                         ZStack(alignment: .top) {
-                            Image(viewModel.model.image).resizable()
+                            Image(viewModel.model.categoryType.id).resizable()
                                 .frame(height: 400).frame(maxWidth: .infinity)
                             HStack {
                                 Button(action: { self.presentationMode.wrappedValue.dismiss() },
@@ -36,39 +37,39 @@ struct DetailsView: View {
                         }
                         Group {
                             HStack {
-                                Text(viewModel.model.name).modifier(SailecFontModifier(.bold, size: 24)).lineLimit(1)
+                                Text(viewModel.model.titleUnwrapped).modifier(SailecFontModifier(.bold, size: 24)).lineLimit(1)
                                     .foregroundColor(Color.text_primary_color)
                                 Spacer()
-                                GenderView(isMale: viewModel.model.gender == "male")
+                                GenderView(isMale: viewModel.model.titleUnwrapped == "male")
                             }.padding(.vertical, 8)
-                            
+
                             HStack(alignment: .center) {
                                 HStack(alignment: .center, spacing: 2) {
                                     Image(IMAGE_LOC_ICON).resizable().frame(width: 24, height: 24)
-                                    Text("\(viewModel.model.location) away").modifier(SailecFontModifier(.regular, size: 14))
+                                    Text("\(viewModel.model.titleUnwrapped) away").modifier(SailecFontModifier(.regular, size: 14))
                                         .foregroundColor(Color.text_primary_color).padding(.top, 2)
                                 }
                                 Spacer()
-                                Text("\(viewModel.model.age) yrs | \(viewModel.model.about)").modifier(SailecFontModifier(.regular, size: 14))
+                                Text("\(viewModel.model.titleUnwrapped) yrs | \(viewModel.model.titleUnwrapped)").modifier(SailecFontModifier(.regular, size: 14))
                                     .lineLimit(1).foregroundColor(Color.text_primary_color)
                             }
-                            
+
                             HStack {
                                 Text("12 min ago").modifier(SailecFontModifier(.regular, size: 14))
                                     .foregroundColor(Color.text_primary_color)
                                 Spacer()
                             }.padding(.leading, 6).padding(.top, 2)
-                            
+
                             VStack(spacing: 16) {
                                 HStack {
                                     Text("My Story").modifier(SailecFontModifier(.bold, size: 18))
                                         .foregroundColor(Color.text_primary_color)
                                     Spacer()
                                 }
-                                Text(viewModel.story).modifier(SailecFontModifier(.regular, size: 16))
+                                Text(viewModel.model.titleUnwrapped).modifier(SailecFontModifier(.regular, size: 16))
                                     .foregroundColor(Color.text_primary_color)
                             }.padding(.vertical, 16)
-                            
+
                             VStack(spacing: 16) {
                                 HStack {
                                     Text("Quick Info").modifier(SailecFontModifier(.bold, size: 18))
@@ -76,30 +77,30 @@ struct DetailsView: View {
                                     Spacer()
                                 }
                                 HStack(spacing: 8) {
-                                    DetailsInfoView(primary: "\(viewModel.model.age) yrs", secondary: "Age")
-                                    DetailsInfoView(primary: "\(viewModel.model.color)", secondary: "Color")
-                                    DetailsInfoView(primary: "\(viewModel.model.weight)", secondary: "Weight")
+                                    DetailsInfoView(primary: "\(viewModel.model.titleUnwrapped) yrs", secondary: "Age")
+                                    DetailsInfoView(primary: "\(viewModel.model.titleUnwrapped)", secondary: "Color")
+                                    DetailsInfoView(primary: "\(viewModel.model.titleUnwrapped)", secondary: "Weight")
                                 }
                             }.padding(.vertical, 16)
-                            
+
                             VStack(spacing: 16) {
                                 HStack {
                                     Text("Owner Info").modifier(SailecFontModifier(.bold, size: 18))
                                         .foregroundColor(Color.text_primary_color)
                                     Spacer()
                                 }
-                                ManufacturerDetailsView(image: viewModel.model.manufacturer.image, name: viewModel.model.manufacturer.name, bio: viewModel.model.manufacturer.bio, messageMethod: viewModel.messageMethod)
+                                ManufacturerDetailsView(image: viewModel.model.titleUnwrapped, name: viewModel.model.titleUnwrapped, bio: viewModel.model.titleUnwrapped, messageMethod: viewModel.messageMethod)
                             }.padding(.vertical, 16)
-                            
+
                             Button(action: { viewModel.adoptMethod() },
                                    label: { Text("Adopt me").modifier(SailecFontModifier(.medium, size: 16)).foregroundColor(.white) })
                                 .frame(height: 50).frame(maxWidth: .infinity)
                                 .background(Color.main_color).cornerRadius(8)
                                 .padding(.vertical, 24)
-                            
+
                         }.padding(.horizontal, 16).padding(.top, 8)
                     }.background(Color.primary_color)
-                    
+
                     Spacer()
                     Spacer().frame(height: 150)
                 }
@@ -158,7 +159,7 @@ struct DetailsInfoView: View {
 struct DetailsView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-            DetailsView(model: ItemData.items[0])
+            DetailsView(model: ItemCoreDataModel()).environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
         }
     }
 }
