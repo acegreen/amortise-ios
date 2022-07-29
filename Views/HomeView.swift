@@ -41,11 +41,7 @@ struct HomeView: View {
             ZStack {
                 Color.primary_color.edgesIgnoringSafeArea(.all)
                 if items.isEmpty {
-                    LottieView(animType: .empty_face).frame(width: 300, height: 300)
-                    VStack {
-                        TextView(text: "No Items Yet!", type: .h6).foregroundColor(Color.text_primary_color)
-                        TextView(text: "Add a item and it will show up here", type: .body_1).foregroundColor(Color.text_primary_color).padding(.top, 2)
-                    }.padding(.horizontal)
+                    NoItemsView()
                 } else {
                     List {
                         ForEach(self.items) { model in
@@ -155,3 +151,5 @@ struct ContentView_Previews: PreviewProvider {
         HomeView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
     }
 }
+
+

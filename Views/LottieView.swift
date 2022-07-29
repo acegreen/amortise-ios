@@ -8,41 +8,41 @@
 import SwiftUI
 import Lottie
 
-enum LottieAnimType: String {
-    case empty_face = "empty-face"
+enum LottieAnimationType: String {
+    case gamma_chart_animation = "gamma-chart-animation"
+    case sweat_grinning_emoji_animation = "sweat-grinning-emoji-animation"
 }
 
 struct LottieView: UIViewRepresentable {
-    
-    var animType: LottieAnimType
-    let animationView = AnimationView()
-    
+    var animationType: LottieAnimationType
+    var loopMode: LottieLoopMode = .loop
+    var contentMode: UIView.ContentMode = .scaleAspectFit
+
     func makeUIView(context: UIViewRepresentableContext<LottieView>) -> UIView {
-        
         let view = UIView()
-        let animation = Animation.named(animType.rawValue)
-        animationView.animation = animation
-        animationView.contentMode = .scaleAspectFit
-        animationView.backgroundBehavior = .pauseAndRestore
-        animationView.loopMode = .loop
-        animationView.play()
-        
-        animationView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(animationView)
-        
-        NSLayoutConstraint.activate([
-            animationView.heightAnchor.constraint(equalTo: view.heightAnchor),
-            animationView.widthAnchor.constraint(equalTo: view.widthAnchor)
-        ])
-        
         return view
     }
-    
-    func updateUIView(_ uiView: UIView, context: UIViewRepresentableContext<LottieView>) {}
+
+    func updateUIView(_ uiView: UIView, context: UIViewRepresentableContext<LottieView>) {
+        uiView.subviews.forEach({ $0.removeFromSuperview() })
+        let animationView = AnimationView()
+        animationView.translatesAutoresizingMaskIntoConstraints = false
+        uiView.addSubview(animationView)
+
+        NSLayoutConstraint.activate([
+            animationView.widthAnchor.constraint(equalTo: uiView.widthAnchor),
+            animationView.heightAnchor.constraint(equalTo: uiView.heightAnchor)
+        ])
+
+        animationView.animation = Animation.named(animationType.rawValue)
+        animationView.contentMode = contentMode
+        animationView.loopMode = loopMode
+        animationView.play()
+    }
 }
 
 struct LottieView_Previews: PreviewProvider {
     static var previews: some View {
-        LottieView(animType: .empty_face)
+        LottieView(animationType: .gamma_chart_animation)
     }
 }
