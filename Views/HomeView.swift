@@ -13,34 +13,33 @@ struct HomeView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @Environment(\.managedObjectContext) private var viewContext
 
-    var fetchRequest: FetchRequest<ItemCoreDataModel>
     @FetchRequest(fetchRequest: ItemCoreDataModel.getAllExpenseData(sortBy: ItemCoreDataModelSort.occuredOn, ascending: false))
-    var expense: FetchedResults<ItemCoreDataModel>
+    var items: FetchedResults<ItemCoreDataModel>
     var filter: ItemCoreDataModelFilterTime?
 
     @StateObject var viewModel = HomeViewModel()
 
-    init(filter: ItemCoreDataModelFilterTime? = nil) {
-        let sortDescriptor = NSSortDescriptor(key: "occuredOn", ascending: false)
-        self.filter = filter
-        if filter == .all {
-            fetchRequest = FetchRequest<ItemCoreDataModel>(entity: ItemCoreDataModel.entity(), sortDescriptors: [sortDescriptor])
-        } else {
-            var startDate: NSDate!
-            let endDate: NSDate = NSDate()
-            if filter == .week { startDate = Date().getLast7Day()! as NSDate }
-            else if filter == .month { startDate = Date().getLast30Day()! as NSDate }
-            else { startDate = Date().getLast6Month()! as NSDate }
-            let predicate = NSPredicate(format: "occuredOn >= %@ AND occuredOn <= %@", startDate, endDate)
-            fetchRequest = FetchRequest<ItemCoreDataModel>(entity: ItemCoreDataModel.entity(), sortDescriptors: [sortDescriptor], predicate: predicate)
-        }
-    }
+//    init(filter: ItemCoreDataModelFilterTime? = nil) {
+//        let sortDescriptor = NSSortDescriptor(key: "occuredOn", ascending: false)
+//        self.filter = filter
+//        if filter == .all {
+//            fetchRequest = FetchRequest<ItemCoreDataModel>(entity: ItemCoreDataModel.entity(), sortDescriptors: [sortDescriptor])
+//        } else {
+//            var startDate: NSDate!
+//            let endDate: NSDate = NSDate()
+//            if filter == .week { startDate = Date().getLast7Day()! as NSDate }
+//            else if filter == .month { startDate = Date().getLast30Day()! as NSDate }
+//            else { startDate = Date().getLast6Month()! as NSDate }
+//            let predicate = NSPredicate(format: "occuredOn >= %@ AND occuredOn <= %@", startDate, endDate)
+//            fetchRequest = FetchRequest<ItemCoreDataModel>(entity: ItemCoreDataModel.entity(), sortDescriptors: [sortDescriptor], predicate: predicate)
+//        }
+//    }
 
     var body: some View {
         NavigationView {
             ZStack {
                 Color.primary_color.edgesIgnoringSafeArea(.all)
-                if fetchRequest.wrappedValue.isEmpty {
+                if items.isEmpty {
                     //                LottieView(animType: .empty_face).frame(width: 300, height: 300)
                     VStack {
                         TextView(text: "No Transaction Yet!", type: .h6).foregroundColor(Color.text_primary_color)
@@ -48,7 +47,7 @@ struct HomeView: View {
                     }.padding(.horizontal)
                 } else {
                     List {
-                        ForEach(self.fetchRequest.wrappedValue) { model in
+                        ForEach(self.items) { model in
                             NavigationLink(destination: DetailsView(model: model), label: {
                                 HomeListModelView(image: model.categoryType.id,
                                                   name: model.title ?? "",
@@ -113,7 +112,7 @@ struct HomeListModelView: View {
     var image: String, name: String, age: String, about: String, location: String, gender: String
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(alignment: .center, spacing: 12) {
             Image(image)
                 .resizable().scaledToFill()
                 .frame(width: 100, height: 100).cornerRadius(16)

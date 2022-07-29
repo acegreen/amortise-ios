@@ -21,9 +21,7 @@ struct AddItemView: View {
         NavigationView {
             ZStack {
                 Color.primary_color.edgesIgnoringSafeArea(.all)
-                
                 VStack {
-                    
                     Group {
                         if viewModel.coreDataObject == nil {
                             ToolbarModelView(title: "Add Item") { self.presentationMode.wrappedValue.dismiss() }
@@ -141,7 +139,6 @@ struct AddItemView: View {
                 }
                 
             }
-            .navigationBarHidden(true)
         }
         .dismissKeyboardOnTap()
         .navigationViewStyle(StackNavigationViewStyle())
