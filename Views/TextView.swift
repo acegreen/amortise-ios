@@ -1,8 +1,8 @@
 //
 //  TextView.swift
-//  Expenso
+//  amortise-ios
 //
-//  Created by Sameer Nawaz on 31/01/21.
+//  Created by Ace Green on 2022-07-28.
 //
 
 import SwiftUI

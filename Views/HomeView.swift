@@ -7,6 +7,7 @@
 
 import SwiftUI
 import CoreData
+import Lottie
 
 struct HomeView: View {
     
@@ -40,7 +41,7 @@ struct HomeView: View {
             ZStack {
                 Color.primary_color.edgesIgnoringSafeArea(.all)
                 if items.isEmpty {
-                    //                LottieView(animType: .empty_face).frame(width: 300, height: 300)
+                    LottieView(animType: .empty_face).frame(width: 300, height: 300)
                     VStack {
                         TextView(text: "No Items Yet!", type: .h6).foregroundColor(Color.text_primary_color)
                         TextView(text: "Add a item and it will show up here", type: .body_1).foregroundColor(Color.text_primary_color).padding(.top, 2)
@@ -134,7 +135,7 @@ struct HomeListModelView: View {
 struct StatusView: View {
     var isOpen: Bool
     var body: some View {
-        Text(isOpen ? "OPEN" : "CLOSED").modifier(SailecFontModifier(.regular, size: 12))
+        Text(isOpen ? "ONGOING" : "COMPLETED").modifier(SailecFontModifier(.regular, size: 12))
             .foregroundColor(isOpen ? Color.blue_color : Color.red_color)
             .padding(.horizontal, 18).padding(.vertical, 8)
             .background(isOpen ? Color.blue_color_trans : Color.red_color_trans)
